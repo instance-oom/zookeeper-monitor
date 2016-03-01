@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>{{.pageTitle}} - {{.siteName}}</title>
+  <link rel="stylesheet" href="/static/css/semantic.min.css">
+  <script src="/static/js/jquery-2.1.4.min.js"></script>
+  <script src="/static/js/semantic.min.js"></script>
+</head>
+
+<body>
+  <div class="ui fixed inverted menu">
+    <div class="ui container">
+      <a href="/" class="header item">
+        <img class="logo" style="margin-right: 10px" src="/static/img/logo.png"> ZOOKEEPER-MONITOR
+      </a>
+      <a href="/" class="item">Home</a>
+      <a href="#" class="item">Cluster Setting</a>            
+    </div>
+  </div>
+
+  <div class="ui main text container" style="margin-top: 80px">
+    {{.LayoutContent}}
+  </div>
+</body>
+
+</html>
