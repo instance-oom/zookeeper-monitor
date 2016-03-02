@@ -6,8 +6,7 @@
   }
 </style>
 <h2 class="ui header">Server Status 
-  {{(.status|len)}}
-  <span style="font-size:10px; color: gray">(Last update date : {{dateformat (index .status 1).InDate "2006-01-02 15:04:05"}})</span>
+  <span style="font-size:10px; color: gray">(Last update date : {{dateformat .latestStatus.InDate "2006-01-02 15:04:05"}})</span>
 </h2>
 <div class="ui four cards">
   <div class="card">
@@ -30,7 +29,7 @@
     <div class="content">
       <div class="header">Version</div>
       <div class="description">
-        {{(index .status 0).Version}}
+        {{.latestStatus.Version}}
       </div>
     </div>
   </div>
@@ -38,7 +37,7 @@
     <div class="content">
       <div class="header">Mode</div>
       <div class="description">
-        {{(index .status 0).ServerState}}
+        {{.latestStatus.ServerState}}
       </div>
     </div>
   </div>
@@ -46,7 +45,7 @@
     <div class="content">
       <div class="header">Node Count</div>
       <div class="description">
-        {{(index .status 0).ZnodeCount}}
+        {{.latestStatus.ZnodeCount}}
       </div>
     </div>
   </div>
@@ -54,7 +53,7 @@
     <div class="content">
       <div class="header">Alive Connections</div>
       <div class="description">
-        {{(index .status 0).NumAliveConnections}}
+        {{.latestStatus.NumAliveConnections}}
       </div>
     </div>
   </div>

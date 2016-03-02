@@ -30,6 +30,7 @@ func (s *ServerController) Detail() {
 
 	s.Data["pageTitle"] = "Server Detail"
 	s.Data["server"] = server
+	s.Data["latestStatus"] = status[len(status)-1]
 	s.Data["status"] = status
 	s.display()
 }
