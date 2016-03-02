@@ -1,0 +1,98 @@
+<h2 class="ui header">Server List</h2> {{if lt 0 (.servers|len)}}
+<table class="ui selectable sortable celled table">
+  <thead>
+    <tr>
+      <th class="sorted">Name</th>
+      <th>IP</th>
+      <th>Port</th>
+      <th>Description</th>
+      <th>InUser</th>
+      <th>InDate</th>
+      <th style="width: 65px"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range $k, $v := .servers}}
+    <tr>
+      <td>
+        <a href="/server/detail/{{$v.ID}}">{{$v.Name}}</a>
+      </td>
+      <td>{{$v.IP}}</td>
+      <td>{{$v.Port}}</td>
+      <td>{{$v.Description}}</td>
+      <td>{{$v.InUser}}</td>
+      <td style="width: 200px">{{dateformat $v.InDate "2006-01-02 15:04:05"}}</td>
+      <td class="center aligned">
+        <a href="/server/edit/{{$v.ID}}" title="Edit {{$v.Name}}">
+          <i class="write icon"></i>
+        </a>
+        <a href="javascript:void(0)" onclick="delServer({{$v.ID}})" title="Delete {{$v.Name}}">
+          <i class="remove icon red"></i>
+        </a>
+      </td>
+    </tr>
+    {{end}}
+  </tbody>
+  <tfoot class="full-width">
+    <tr>
+      <th colspan="7">
+        <a href="/server/add" class="ui right floated small green labeled icon button">
+          <i class="server icon"></i> Add Server
+        </a>
+      </th>
+    </tr>
+  </tfoot>
+</table>
+{{else}}
+<div class="ui ignored warning message">
+  <p>There is no servers. Please <a href="/server/add">Add</a> first.</p>
+</div>
+{{end}}
+
+<div id="confirmBox" class="ui basic modal">
+  <div class="header">
+    Warn
+  </div>
+  <div class="content">
+    <div class="description">
+      <p>Are you sure to delete this server?</p>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui red basic cancel inverted button">
+      <i class="remove icon"></i> No
+    </div>
+    <div class="ui green basic approve inverted button">
+      <i class="checkmark icon"></i> Yes
+    </div>
+  </div>
+</div>
+
+<script>
+  function delServer(serverID){
+    $('#confirmBox').modal({
+      blurring: true,
+      closable: false,      
+      onApprove: function () {
+        var data = {
+          "ID": serverID
+        }
+        $.ajax({
+          url: "/server/delete",
+          data: JSON.stringify(data),
+          type: "DELETE"
+        }).done(function (result) {
+          location.reload()
+        }).fail(function (result) {
+          $("#alertError").fadeIn("slow")
+          $("#alertError").text(result.msg)
+        }).always(function () {
+          setTimeout(function () {
+            $(".ui.message").fadeOut("slow")
+          }, 3000)
+        })        
+      }
+    }).modal('show');
+  }
+
+</script>

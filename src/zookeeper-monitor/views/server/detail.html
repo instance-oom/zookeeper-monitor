@@ -1,0 +1,136 @@
+<script src="/static/js/highcharts.js"></script>
+<style>
+  .description {
+    font-size: 30px;
+    font-weight: bold;
+  }
+</style>
+<h2 class="ui header">Server Status 
+  {{(.status|len)}}
+  <span style="font-size:10px; color: gray">(Last update date : {{dateformat (index .status 1).InDate "2006-01-02 15:04:05"}})</span>
+</h2>
+<div class="ui four cards">
+  <div class="card">
+    <div class="content">
+      <div class="header">Running</div>
+      <div class="description">
+        {{ .server.IsRunning }}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="content">
+      <div class="header">IP</div>
+      <div class="description">
+        {{ .server.IP }}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="content">
+      <div class="header">Version</div>
+      <div class="description">
+        {{(index .status 0).Version}}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="content">
+      <div class="header">Mode</div>
+      <div class="description">
+        {{(index .status 0).ServerState}}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="content">
+      <div class="header">Node Count</div>
+      <div class="description">
+        {{(index .status 0).ZnodeCount}}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="content">
+      <div class="header">Alive Connections</div>
+      <div class="description">
+        {{(index .status 0).NumAliveConnections}}
+      </div>
+    </div>
+  </div>
+</div>
+<div id="node" style="min-width: 310px; height: 400px; margin: 10px auto"></div>
+<div id="packets" style="min-width: 310px; height: 400px; margin: 10px auto"></div>
+<script>
+  $(function () {
+    var data = {
+      "date":[{{range $k,$v:=.status}}{{dateformat $v.InDate "01-02 15:04"}},{{end}}],
+      "received":[{{range $k,$v:=.status}}{{$v.PacketsReceived}},{{end}}],
+      "send":[{{range $k,$v:=.status}}{{$v.PacketsSend}},{{end}}],
+      "node":[{{range $k,$v:=.status}}{{$v.ZnodeCount}},{{end}}]
+    };
+    $('#node').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Node Count'
+        },
+        xAxis: {
+            categories: data.date,
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Node Count'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        series: [{
+            name: 'Count',
+            data: data.node,
+            dataLabels: {
+              enabled: true,
+              rotation: -90,
+              color: '#FFFFFF',
+              align: 'right',
+              format: '{point.y}',
+              y: 10,
+              style: {
+                fontSize: '13px',
+                fontFamily: 'Verdana, sans-serif'
+              }
+            }
+        }]
+    });   
+    $('#packets').highcharts({
+        title: {
+            text: 'PacketsReceived And PacketsSend',
+            x: -20 
+        },
+        xAxis: {
+            categories: data.date
+        },
+        yAxis: {
+            title: {
+                text: 'PacketsNum'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        series: [{
+            name: 'PacketsReceived',
+            data: data.received
+        },{
+            name: 'PacketsSend',
+            data: data.send
+        }]
+    });
+});
+
+</script>

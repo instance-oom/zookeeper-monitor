@@ -1,0 +1,95 @@
+<h2 class="ui header">Cluster List</h2>
+{{if lt 0 (.clusters|len)}}
+<table class="ui selectable celled table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>InUser</th>
+      <th>InDate</th>
+      <th style="width: 65px"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range $k, $v := .clusters}}
+    <tr>
+      <td>
+        <a href="/cluster/detail/{{$v.ID}}">{{$v.Name}}</a>
+      </td>
+      <td>{{$v.Description}}</td>
+      <td>{{$v.InUser}}</td>
+      <td style="width: 200px">{{dateformat $v.InDate "2006-01-02 15:04:05"}}</td>
+      <td class="center aligned">
+        <a href="/cluster/edit/{{$v.ID}}" title="Edit {{$v.Name}}">
+          <i class="write icon"></i>
+        </a>
+        <a href="javascript:void(0)" onclick="delCluster({{$v.ID}})" title="Delete {{$v.Name}}">
+          <i class="remove icon red"></i>
+        </a>
+      </td>
+    </tr>
+    {{end}}
+  </tbody>
+  <tfoot class="full-width">
+    <tr>
+      <th colspan="5">
+        <a href="/cluster/add" class="ui right floated small green labeled icon button">
+          <i class="connectdevelop icon"></i> Add Cluster
+        </a>       
+      </th>
+    </tr>
+  </tfoot>
+</table>
+{{else}}
+<div class="ui ignored warning message">
+  <p>There is no clusters. Please <a href="/cluster/add">Add</a> first.</p>
+</div>
+{{end}}
+
+<div id="confirmBox" class="ui basic modal">
+  <div class="header">
+    Warn
+  </div>
+  <div class="content">
+    <div class="description">
+      <p>This operate will delete all servers in this cluster. Do you want to continue?</p>
+    </div>
+  </div>
+  <div class="actions">
+      <div class="ui red basic cancel inverted button">
+        <i class="remove icon"></i> No
+      </div>
+      <div class="ui green basic approve inverted button">
+        <i class="checkmark icon"></i> Yes
+      </div>
+  </div>
+</div>
+
+<script>
+  function delCluster(clusterID){
+     $('#confirmBox').modal({
+      blurring: true,
+      closable: false,      
+      onApprove: function () {
+        var data = {
+          "ID": clusterID
+        }
+        $.ajax({
+          url: "/cluster/delete",
+          data: JSON.stringify(data),
+          type: "DELETE"
+        }).done(function (result) {
+          location.reload()
+        }).fail(function (result) {
+          $("#alertError").fadeIn("slow")
+          $("#alertError").text(result.msg)
+        }).always(function () {
+          setTimeout(function () {
+            $(".ui.message").fadeOut("slow")
+          }, 3000)
+        })        
+      }
+    }).modal('show');
+  }
+
+</script>

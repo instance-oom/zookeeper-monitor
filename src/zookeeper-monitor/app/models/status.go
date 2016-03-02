@@ -36,3 +36,21 @@ func AddStatus(s *Status) (int64, error) {
 	s.InDate = time.Now()
 	return orm.NewOrm().Insert(s)
 }
+
+//GetStatus : Get Status By ServerID
+func GetStatus(serverID int) ([]*Status, error) {
+	var result []*Status
+	_, err := orm.NewOrm().Raw("select * from status where ServerID = ? order by InDate desc limit 100", serverID).QueryRows(&result)
+	sort(result)
+	return result, err
+}
+
+func sort(slice []*Status) {
+	for i := 0; i < len(slice); i++ {
+		for j := i + 1; j < len(slice); j++ {
+			if slice[j].InDate.Before(slice[i].InDate) {
+				slice[i], slice[j] = slice[j], slice[i]
+			}
+		}
+	}
+}

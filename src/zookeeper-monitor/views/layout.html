@@ -12,17 +12,23 @@
 </head>
 
 <body>
-  <div class="ui fixed inverted menu">
+  <div class="ui inverted menu" style="border-radius:0">
     <div class="ui container">
       <a href="/" class="header item">
         <img class="logo" style="margin-right: 10px" src="/static/img/logo.png"> ZOOKEEPER-MONITOR
       </a>
-      <a href="/" class="item">Home</a>
-      <a href="#" class="item">Cluster Setting</a>            
+      <a href="/" {{if eq .curRoute "main.index"}}class="item active" {{else}}class="item" {{end}}>Home</a>
+      <a href="/cluster" {{if eq .curController "cluster" "server"}}class="item active" {{else}}class="item" {{end}}>Cluster</a>
     </div>
   </div>
 
-  <div class="ui main text container" style="margin-top: 80px">
+  <div class="ui main container" style="margin-top:20px">
+    <div id="alertSuccess" class="ui floating positive message" style="display:none">
+      <div class="header">Success!</div>
+    </div>
+    <div id="alertError" class="ui floating negative message" style="display:none">
+
+    </div>
     {{.LayoutContent}}
   </div>
 </body>

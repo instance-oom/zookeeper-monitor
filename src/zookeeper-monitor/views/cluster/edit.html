@@ -1,0 +1,11 @@
+<form class="ui form" method="POST">
+  <div class="field">
+    <label>Name</label>
+    <input type="text" name="cluster_name" placeholder="Cluster Name" value="{{.cluster.Name}}" maxlength="20">
+  </div>
+  <div class="field">
+    <label>Description</label>
+    <textarea name="cluster_desc" maxlength="500">{{.cluster.Description}}</textarea>
+  </div>  
+  <button class="ui button" type="submit">Save</button>
+</form>

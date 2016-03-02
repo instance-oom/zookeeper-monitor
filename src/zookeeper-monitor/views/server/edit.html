@@ -1,0 +1,28 @@
+<h2 class="ui header">Edit Server</h2>
+<form class="ui form" method="POST">
+  <div class="field">
+    <label>Cluster</label>
+    <select class="ui fluid dropdown" name="cluster_id" disabled>
+      {{range $k, $v := .clusters }}
+      <option value="{{$v.ID}}" {{if eq $.server.ClusterID $v.ID}}selected{{end}}>{{$v.Name}}</option>
+      {{end}}
+    </select>
+  </div>
+  <div class="field">
+    <label>Name</label>
+    <input type="text" name="server_name" placeholder="Server Name" maxlength="20" value="{{.server.Name}}">
+  </div>
+  <div class="field">
+    <label>IP</label>
+    <input type="text" name="server_ip" placeholder="Server IP" maxlength="15" value="{{.server.IP}}">
+  </div>
+  <div class="field">
+    <label>Port</label>
+    <input type="text" name="server_port" placeholder="Server Port" maxlength="5" value="{{.server.Port}}">
+  </div>
+  <div class="field">
+    <label>Description</label>
+    <textarea name="server_desc" maxlength="500">{{.server.Description}}</textarea>
+  </div>  
+  <button class="ui button" type="submit">Save</button>
+</form>
