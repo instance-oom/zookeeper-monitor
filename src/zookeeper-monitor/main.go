@@ -27,6 +27,7 @@ func main() {
 		t.Execute(rw, data)
 	})
 	models.Init()
+	jobs.Init()
 
 	go jobs.Run()
 

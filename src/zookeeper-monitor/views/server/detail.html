@@ -5,6 +5,11 @@
     font-weight: bold;
   }
 </style>
+{{if eq 0 .latestStatus.ID}}
+<div class="ui ignored warning message">
+  <p>There is no status for now</p>
+</div>
+{{else}}
 <h2 class="ui header">Server Status 
   <span style="font-size:10px; color: gray">(Last update date : {{dateformat .latestStatus.InDate "2006-01-02 15:04:05"}})</span>
 </h2>
@@ -58,78 +63,33 @@
     </div>
   </div>
 </div>
-<div id="node" style="min-width: 310px; height: 400px; margin: 10px auto"></div>
+<!--<div id="node" style="min-width: 310px; height: 400px; margin: 10px auto"></div>-->
+<div id="connections" style="min-width: 310px; height: 400px; margin: 10px auto"></div>
 <div id="packets" style="min-width: 310px; height: 400px; margin: 10px auto"></div>
 <script>
   $(function () {
     var data = {
-      "date":[{{range $k,$v:=.status}}{{dateformat $v.InDate "01-02 15:04"}},{{end}}],
+      "date":[{{range $k,$v:=.status}}{{dateformat $v.InDate "15:04"}},{{end}}],
       "received":[{{range $k,$v:=.status}}{{$v.PacketsReceived}},{{end}}],
-      "send":[{{range $k,$v:=.status}}{{$v.PacketsSend}},{{end}}],
-      "node":[{{range $k,$v:=.status}}{{$v.ZnodeCount}},{{end}}]
+      "sent":[{{range $k,$v:=.status}}{{$v.PacketsSend}},{{end}}],
+      "node":[{{range $k,$v:=.status}}{{$v.ZnodeCount}},{{end}}],
+      "connections":[{{range $k,$v:=.status}}{{$v.NumAliveConnections}},{{end}}]
     };
-    $('#node').highcharts({
-        chart: {
-            type: 'column'
-        },
-        title: {
-            text: 'Node Count'
-        },
-        xAxis: {
-            categories: data.date,
-        },
-        yAxis: {
-            min: 0,
-            title: {
-                text: 'Node Count'
-            }
-        },
-        legend: {
-            enabled: false
-        },
-        series: [{
-            name: 'Count',
-            data: data.node,
-            dataLabels: {
-              enabled: true,
-              rotation: -90,
-              color: '#FFFFFF',
-              align: 'right',
-              format: '{point.y}',
-              y: 10,
-              style: {
-                fontSize: '13px',
-                fontFamily: 'Verdana, sans-serif'
-              }
-            }
-        }]
-    });   
-    $('#packets').highcharts({
-        title: {
-            text: 'PacketsReceived And PacketsSend',
-            x: -20 
-        },
-        xAxis: {
-            categories: data.date
-        },
-        yAxis: {
-            title: {
-                text: 'PacketsNum'
-            },
-            plotLines: [{
-                value: 0,
-                width: 1,
-                color: '#808080'
-            }]
-        },
-        series: [{
-            name: 'PacketsReceived',
-            data: data.received
-        },{
-            name: 'PacketsSend',
-            data: data.send
-        }]
-    });
+    var packateSeries = [{
+      "name":"Packets Received",
+      "data":data.received
+    },{
+      "name":"Packets Sent",
+      "data":data.sent
+    }]
+    var connectionSeries = [{
+      "name":"Alive Connections",
+      "data":data.connections
+    }]
+    // initBarCharts("node", "Node Count", "Count", data.date, data.node)
+    initSplineChart("packets", "Packets Received And Sent", "Packets", data.date, packateSeries)
+    initSplineChart("connections", "AliveConnections", "Connections", data.date, connectionSeries)
 });
 
 </script>
+{{end}}

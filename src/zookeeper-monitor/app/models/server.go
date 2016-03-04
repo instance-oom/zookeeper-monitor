@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/astaxie/beego/orm"
@@ -20,32 +19,18 @@ type Server struct {
 	EditUser    string    `orm:"column(EditUser);null"`
 	EditDate    time.Time `orm:"column(EditDate);type(datetime);null"`
 	IsRunning   bool      `orm:"column(IsRunning);type(bool)"`
+	Mode        string    `orm:"column(Mode);null"`
 	Statuses    []*Status `orm:"-"`
 }
 
 //AddServer : Add Server
 func AddServer(server *Server) (int64, error) {
-	if server.ClusterID == 0 {
-		return 0, fmt.Errorf("ClusterID cannot be null or empty")
-	}
-	if server.IP == "" {
-		return 0, fmt.Errorf("IP cannot be null or empty")
-	}
-	if server.Port == "" {
-		return 0, fmt.Errorf("Port cannot be null or empty")
-	}
-	if server.Name == "" {
-		return 0, fmt.Errorf("Name cannot be null or empty")
-	}
 	server.InDate = time.Now()
 	return orm.NewOrm().Insert(server)
 }
 
 //GetServerByID : Get Server By ServerID
 func GetServerByID(serverID int) (*Server, error) {
-	if serverID == 0 {
-		return nil, fmt.Errorf("ServerID cannot be null or empty")
-	}
 	server := Server{ID: serverID}
 	err := orm.NewOrm().Read(&server)
 	return &server, err
@@ -53,9 +38,6 @@ func GetServerByID(serverID int) (*Server, error) {
 
 //GetServersByClusterID : Get Servers By ClusterID
 func GetServersByClusterID(clusterID int) ([]*Server, error) {
-	if clusterID == 0 {
-		return nil, fmt.Errorf("ClusterID cannot be null or empty")
-	}
 	var servers []*Server
 	qs := orm.NewOrm().QueryTable("server")
 	_, err := qs.Filter("ClusterID", clusterID).All(&servers)
@@ -72,10 +54,8 @@ func GetAllServers() ([]*Server, error) {
 
 //Update : Update server info
 func (s *Server) Update(fields ...string) error {
-	if s.Name == "" {
-		return fmt.Errorf("Server Name cannot be null or empty.")
-	}
-	if _, err := orm.NewOrm().Update(s, fields...); err != nil {
+	s.EditDate = time.Now()
+	if _, err := orm.NewOrm().Update(s, "Name", "Description", "IsRunning", "Mode", "EditUser", "EditDate"); err != nil {
 		return err
 	}
 	return nil
@@ -83,9 +63,6 @@ func (s *Server) Update(fields ...string) error {
 
 //DelServerByServerID : Delete Server By ServerID
 func DelServerByServerID(serverID int) error {
-	if serverID == 0 {
-		return fmt.Errorf("ServerID cannot be null or empty")
-	}
 	o := orm.NewOrm()
 	err := o.Begin()
 	if err != nil {
@@ -103,9 +80,20 @@ func DelServerByServerID(serverID int) error {
 
 //DelServersByClusterID : Delete Servers By ClusterID
 func DelServersByClusterID(clusterID int) error {
-	if clusterID == 0 {
-		return fmt.Errorf("ClusterID cannot be null or empty")
-	}
 	_, err := orm.NewOrm().QueryTable("server").Filter("ClusterID", clusterID).Delete()
 	return err
+}
+
+//IsServerExist : Analyzing server is present by server name 、ip or port
+func IsServerExist(ip, port, name string) bool {
+	cond := orm.NewCondition()
+	exist := orm.NewOrm().QueryTable("server").SetCond(cond.AndCond(cond.And("IP", ip).And("Port", port)).OrCond(cond.And("Name", name))).Exist()
+	return exist
+}
+
+//IsServerExistForEdit : Analyzing server is present
+func IsServerExistForEdit(ip, port, name string, id int) bool {
+	cond := orm.NewCondition()
+	exist := orm.NewOrm().QueryTable("server").SetCond(cond.AndCond(cond.AndCond(cond.And("IP", ip).And("Port", port)).OrCond(cond.And("Name", name))).AndCond(cond.AndNot("ID", id))).Exist()
+	return exist
 }

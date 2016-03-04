@@ -12,13 +12,30 @@ import (
 )
 
 var servers []*models.Server
+var mail *models.Mail
+
+//Init : init base data
+func Init() {
+	MailChanged()
+	ServerChanged()
+}
 
 //ServerChanged : Get servers when delete or create server
 func ServerChanged() {
 	var err error
 	servers, err = models.GetAllServers()
 	if err != nil {
-		common.SendMail(err.Error(), "GetAllServers")
+		common.SendMail(err.Error(), mail.Address, "GetAllServers")
+		return
+	}
+}
+
+//MailChanged : Get mail info
+func MailChanged() {
+	var err error
+	mail, err = models.GetMail()
+	if err != nil || mail == nil {
+		common.SendMail(err.Error(), "lon.l.yang@newegg.com", "GetAlertMailError")
 		return
 	}
 }
@@ -29,20 +46,34 @@ func Run() {
 	if time := beego.AppConfig.String("collect.time"); time != "" {
 		collectTime, _ = strconv.Atoi(time)
 	}
-	timer := time.NewTicker(time.Second * time.Duration(collectTime))
-	ServerChanged()
+	timeToUpdateServerStatus := time.NewTicker(time.Second * time.Duration(collectTime))
+	timeToSaveStatus := time.NewTicker(time.Second * time.Duration(collectTime*5))
 	for {
 		select {
-		case <-timer.C:
+		case <-timeToUpdateServerStatus.C:
 			go func() {
 				for _, server := range servers {
 					stats, _ := zk.FLWSrvr([]string{server.IP + ":" + server.Port}, time.Second*5)
 					for _, stat := range stats {
 						if stat.Error != nil {
-							common.SendMail(stat.Error.Error(), server.IP)
+							common.SendMail(stat.Error.Error(), mail.Address, server.IP)
 							server.IsRunning = false
+							server.Mode = "Unknown"
 						} else {
 							server.IsRunning = true
+							server.Mode = stat.Mode.String()
+						}
+						server.EditUser = "job"
+						server.Update()
+					}
+				}
+			}()
+		case <-timeToSaveStatus.C:
+			go func() {
+				for _, server := range servers {
+					stats, _ := zk.FLWSrvr([]string{server.IP + ":" + server.Port}, time.Second*5)
+					for _, stat := range stats {
+						if stat.Error == nil {
 							status := new(models.Status)
 							status.ServerID = server.ID
 							status.Version = stat.Version
@@ -65,7 +96,6 @@ func Run() {
 							status.PendingSyncs = -1
 							models.AddStatus(status)
 						}
-						server.Update()
 					}
 				}
 			}()

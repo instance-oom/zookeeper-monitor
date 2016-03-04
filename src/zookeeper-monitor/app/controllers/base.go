@@ -23,12 +23,10 @@ func (b *BaseController) Prepare() {
 	controllerName, actionName := b.GetControllerAndAction()
 	b.controllerName = strings.ToLower(controllerName[0 : len(controllerName)-10])
 	b.actionName = strings.ToLower(actionName)
-	//b.auth()
 
 	b.Data["siteName"] = beego.AppConfig.String("site.name")
 	b.Data["curRoute"] = b.controllerName + "." + b.actionName
 	b.Data["curController"] = b.controllerName
-	b.Data["curAction"] = b.actionName
 }
 
 func (b *BaseController) display(tpl ...string) {
@@ -47,10 +45,6 @@ func (b *BaseController) redirect(url string) {
 	b.StopRun()
 }
 
-func (b *BaseController) isPost() bool {
-	return b.Ctx.Request.Method == "POST"
-}
-
 func (b *BaseController) showError(args ...string) {
 	b.Data["error"] = args[0]
 	redirect := b.Ctx.Request.Referer()
@@ -65,13 +59,6 @@ func (b *BaseController) showError(args ...string) {
 	b.StopRun()
 }
 
-func (b *BaseController) jsonResult(out interface{}, status int) {
-	b.Data["json"] = out
-	b.Ctx.Output.SetStatus(status)
-	b.ServeJSON()
-	b.StopRun()
-}
-
 func (b *BaseController) ajaxMsg(msg interface{}, msgno int) {
 	out := make(map[string]interface{})
 	out["status"] = msgno
@@ -80,5 +67,8 @@ func (b *BaseController) ajaxMsg(msg interface{}, msgno int) {
 	if msgno != MSG_OK {
 		status = 500
 	}
-	b.jsonResult(out, status)
+	b.Data["json"] = out
+	b.Ctx.Output.SetStatus(status)
+	b.ServeJSON()
+	b.StopRun()
 }

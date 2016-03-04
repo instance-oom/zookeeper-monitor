@@ -1,28 +1,59 @@
-<h2 class="ui header">Add Server</h2>
-<form class="ui form" method="POST">
-  <div class="field">
-    <label>Cluster</label>
-    <select class="ui fluid dropdown" name="cluster_id">
-      {{range $k, $v := .clusters }}
-      <option value="{{$v.ID}}">{{$v.Name}}</option>
-      {{end}}
-    </select>
+<div class="ui">
+  <div id="ServerFormLoading" class="ui dimmer">
+    <div class="ui text loader">Creating</div>
   </div>
-  <div class="field">
-    <label>Name</label>
-    <input type="text" name="server_name" placeholder="Server Name" maxlength="20">
-  </div>
-  <div class="field">
-    <label>IP</label>
-    <input type="text" name="server_ip" placeholder="Server IP" maxlength="15">
-  </div>
-  <div class="field">
-    <label>Port</label>
-    <input type="text" name="server_port" placeholder="Server Port" maxlength="5">
-  </div>
-  <div class="field">
-    <label>Description</label>
-    <textarea name="server_desc" maxlength="500"></textarea>
-  </div>
-  <button class="ui button" type="submit">Add</button>
-</form>
+  <h2 class="ui header">Add Server</h2>
+  <form id="ServerForm" class="ui form" onSubmit="addServer(this);return false;">
+    <div class="field">
+      <label>Cluster</label>
+      <select class="ui fluid dropdown" name="ClusterID">
+        {{range $k, $v := .clusters }}
+        <option value="{{$v.ID}}">{{$v.Name}}</option>
+        {{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" name="Name" placeholder="Server Name" maxlength="20">
+    </div>
+    <div class="field">
+      <label>IP</label>
+      <input type="text" name="IP" placeholder="Server IP" maxlength="15">
+    </div>
+    <div class="field">
+      <label>Port</label>
+      <input type="text" name="Port" placeholder="Server Port" maxlength="5">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="Description" maxlength="500"></textarea>
+    </div>
+    <button class="ui button" type="submit">Add</button>
+  </form>
+</div>
+<script>
+  function addServer(form){
+    var id = form.id 
+    if($("#"+id).form("is valid") === true){
+      var serverInfo = $("#"+id).form('get values') 
+      serverInfo.ClusterID = parseInt(serverInfo.ClusterID) 
+      $("#"+id+"Loading").addClass('active')
+      $.ajax({
+        url: "/server/add",
+        data: JSON.stringify(serverInfo),
+        type: "POST"
+      }).done(function (result) {
+        location.href = "/cluster/detail/" + result.msg
+      }).fail(function (result) {
+        $("#alertError").fadeIn("slow")
+        $("#alertError").text(result.responseJSON.msg)
+      }).always(function () {
+        $("#"+id+"Loading").removeClass('active')
+        setTimeout(function () {
+          $(".ui.message").fadeOut("slow")
+        }, 5000)
+      })
+    }
+  }
+
+</script>

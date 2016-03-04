@@ -1,32 +1,36 @@
 {{if lt 0 (.clusters|len)}} {{range $k,$v:= .clusters}}
 <div style="margin-bottom: 50px">
   <h4 class="ui horizontal divider header">
-  <i class="server icon"></i> {{ $v.Name }} 
-</h4>
-  <div class="ui header">{{ $v.Description }} </div>
+    <i class="server icon"></i> {{ $v.Name }} 
+  </h4>
 
-  <table class="ui red table">
+  <table class="ui sortable red table">
+    <thead>
+      <tr class="center aligned">
+        <th>Name</th>
+        <th>Address</th>
+        <th>Running</th>
+        <th>Mode</th>
+        <th>Last Update Time</th>
+      </tr>
+    </thead>
     <tbody>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th class="center aligned">Address</th>
-          <th class="center aligned">Running</th>
-        </tr>
-      </thead>
       {{range $k2,$s:= $.servers}} {{if eq $v.ID $s.ClusterID}}
-      <tr>
+      <tr class="center aligned" {{if eq false $s.IsRunning }}style="background-color: firebrick" {{end}}>
         <td>
           <a href="/server/detail/{{ $s.ID }}">
             {{ $s.Name }}
           </a>
         </td>
-        <td class="center aligned">{{ $s.IP }}:{{ $s.Port }}</td>
-        <td class="center aligned">
+        <td>{{ $s.IP }}:{{ $s.Port }}</td>
+        <td>
           {{if eq true $s.IsRunning }}
-          <i class="large green checkmark icon"></i> {{else}}
-          <i class="large red remove icon"></i> {{end}}
+          <i class="large green checkmark icon"></i> {{end}}
         </td>
+        <td>
+          {{ $s.Mode }}
+        </td>
+        <td style="width: 200px">{{dateformat $s.EditDate "2006-01-02 15:04:05"}}</td>
       </tr>
       {{end}} {{end}}
     </tbody>

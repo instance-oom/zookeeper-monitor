@@ -1,11 +1,44 @@
-<form class="ui form" method="POST">
-  <div class="field">
-    <label>Name</label>
-    <input type="text" name="cluster_name" placeholder="Cluster Name" value="{{.cluster.Name}}" maxlength="20">
+<div class="ui">
+  <div id="ClusterFormLoading" class="ui dimmer">
+    <div class="ui text loader">Updating</div>
   </div>
-  <div class="field">
-    <label>Description</label>
-    <textarea name="cluster_desc" maxlength="500">{{.cluster.Description}}</textarea>
-  </div>  
-  <button class="ui button" type="submit">Save</button>
-</form>
+  <h2 class="ui header">Edit Cluster</h2>
+  <form id="ClusterForm" class="ui form" onSubmit="editCluster(this);return false">
+    <input type="hidden" name="ID" value="{{.cluster.ID}}">
+    <div class="field">
+      <label>Name</label>
+      <input type="text" name="Name" placeholder="Cluster Name" value="{{.cluster.Name}}" maxlength="20">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="Description" maxlength="500">{{.cluster.Description}}</textarea>
+    </div>
+    <button class="ui button" type="submit">Save</button>
+  </form>
+</div>
+<script>
+  function editCluster(form){
+    var id = form.id 
+    if($("#"+id).form("is valid") === true){
+      var clusterInfo = $("#"+id).form('get values') 
+      clusterInfo.ID = parseInt(clusterInfo.ID)      
+      $("#"+id+"Loading").addClass('active')
+      $.ajax({
+        url: "/cluster/edit",
+        data: JSON.stringify(clusterInfo),
+        type: "POST"
+      }).done(function (result) {
+        location.href = "/cluster"
+      }).fail(function (result) {
+        $("#alertError").fadeIn("slow")
+        $("#alertError").text(result.responseJSON.msg)
+      }).always(function () {
+        $("#"+id+"Loading").removeClass('active')
+        setTimeout(function () {
+          $(".ui.message").fadeOut("slow")
+        }, 5000)
+      })
+    }
+  }
+
+</script>

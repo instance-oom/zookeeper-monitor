@@ -1,0 +1,43 @@
+<div class="ui">
+  <div id="MailFormLoading" class="ui dimmer">
+    <div class="ui text loader">Updating</div>
+  </div>
+  <h2 class="ui header">Alert Mail Config</h2>
+  <div id="MailForm" class="ui form">
+    <input type="hidden" name="ID" value="{{.mail.ID}}">
+    <div class="field">
+      <label>Address</label>
+      <input type="text" name="Address" maxlength="100" value="{{.mail.Address}}">
+    </div>
+    <button class="ui button" type="submit" onclick="updateMail('MailForm')">Save</button>
+  </div>
+</div>
+<script>
+  function updateMail(id){
+    $("#"+id).form('validate form')
+    if($("#"+id).form("is valid") === true){
+      var mail = $("#"+id).form('get values') 
+      mail.ID = parseInt(mail.ID)
+      var uri = "/mail/edit"
+      if(mail.ID === 0){
+        uri = "/mail/add"
+      }
+      $("#"+id+"Loading").addClass('active')
+      $.ajax({
+        url: uri,
+        data: JSON.stringify(mail),
+        type: "POST"
+      }).done(function (result) {
+        location.reload()
+      }).fail(function (result) {
+        $("#alertError").fadeIn("slow")
+        $("#alertError").text(result.responseJSON.msg)
+      }).always(function () {
+        $("#"+id+"Loading").removeClass('active')
+        setTimeout(function () {
+          $(".ui.message").fadeOut("slow")
+        }, 5000)
+      })
+    }
+  }
+</script>

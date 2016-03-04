@@ -1,9 +1,9 @@
 <h2 class="ui header">Cluster List</h2>
 {{if lt 0 (.clusters|len)}}
-<table class="ui selectable celled table">
+<table class="ui sortable selectable celled table">
   <thead>
     <tr>
-      <th>Name</th>
+      <th class="sorted">Name</th>
       <th>Description</th>
       <th>InUser</th>
       <th>InDate</th>
@@ -64,32 +64,3 @@
       </div>
   </div>
 </div>
-
-<script>
-  function delCluster(clusterID){
-     $('#confirmBox').modal({
-      blurring: true,
-      closable: false,      
-      onApprove: function () {
-        var data = {
-          "ID": clusterID
-        }
-        $.ajax({
-          url: "/cluster/delete",
-          data: JSON.stringify(data),
-          type: "DELETE"
-        }).done(function (result) {
-          location.reload()
-        }).fail(function (result) {
-          $("#alertError").fadeIn("slow")
-          $("#alertError").text(result.msg)
-        }).always(function () {
-          setTimeout(function () {
-            $(".ui.message").fadeOut("slow")
-          }, 3000)
-        })        
-      }
-    }).modal('show');
-  }
-
-</script>

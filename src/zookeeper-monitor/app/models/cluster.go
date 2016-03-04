@@ -1,7 +1,7 @@
 package models
 
 import (
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/astaxie/beego/orm"
@@ -21,9 +21,6 @@ type Cluster struct {
 
 //AddCluster : Add Cluster
 func AddCluster(cluster *Cluster) (int64, error) {
-	if cluster.Name == "" {
-		return 0, fmt.Errorf("Name cannot be null or empty")
-	}
 	return orm.NewOrm().Insert(cluster)
 }
 
@@ -32,14 +29,18 @@ func GetAllClusters() ([]*Cluster, error) {
 	var clusters []*Cluster
 	qs := orm.NewOrm().QueryTable("cluster")
 	_, err := qs.All(&clusters)
+	for i := 0; i < len(clusters); i++ {
+		for j := i + 1; j < len(clusters); j++ {
+			if strings.Compare(clusters[j].Name, clusters[i].Name) == -1 {
+				clusters[i], clusters[j] = clusters[j], clusters[i]
+			}
+		}
+	}
 	return clusters, err
 }
 
 //GetClusterByID : Get Cluster By ClusterID
 func GetClusterByID(clusterID int) (*Cluster, error) {
-	if clusterID == 0 {
-		return nil, fmt.Errorf("ServerID cannot be null or empty")
-	}
 	cluster := Cluster{ID: clusterID}
 	err := orm.NewOrm().Read(&cluster)
 	return &cluster, err
@@ -47,10 +48,7 @@ func GetClusterByID(clusterID int) (*Cluster, error) {
 
 //Update : Update Cluster Info
 func (c *Cluster) Update(fields ...string) error {
-	if c.Name == "" {
-		return fmt.Errorf("Cluster Name cannot be null or empty.")
-	}
-	if _, err := orm.NewOrm().Update(c, fields...); err != nil {
+	if _, err := orm.NewOrm().Update(c, "Name", "Description", "EditUser", "EditDate"); err != nil {
 		return err
 	}
 	return nil
@@ -58,9 +56,7 @@ func (c *Cluster) Update(fields ...string) error {
 
 //DelClusterByID : Delete Cluster By ClusterID
 func DelClusterByID(clusterID int) error {
-	if clusterID == 0 {
-		return fmt.Errorf("ClusterID cannot be null or empty")
-	}
+
 	o := orm.NewOrm()
 	err := o.Begin()
 	if err != nil {
@@ -74,4 +70,16 @@ func DelClusterByID(clusterID int) error {
 	}
 	o.Commit()
 	return nil
+}
+
+//IsClusterExist : Analyzing cluster is present by name
+func IsClusterExist(name string) bool {
+	exist := orm.NewOrm().QueryTable("cluster").Filter("Name", name).Exist()
+	return exist
+}
+
+//IsClusterExistForEdit : Analyzing cluster is present
+func IsClusterExistForEdit(name string, id int) bool {
+	exist := orm.NewOrm().QueryTable("cluster").Filter("Name", name).Exclude("ID", id).Exist()
+	return exist
 }

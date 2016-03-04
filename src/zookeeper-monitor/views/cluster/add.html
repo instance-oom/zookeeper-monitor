@@ -1,11 +1,42 @@
-<form class="ui form" method="POST">
-  <div class="field">
-    <label>Name</label>
-    <input type="text" name="cluster_name" placeholder="Cluster Name" maxlength="20">
+<div class="ui">
+  <div id="ClusterFormLoading" class="ui dimmer">
+    <div class="ui text loader">Creating</div>
   </div>
-  <div class="field">
-    <label>Description</label>
-    <textarea name="cluster_desc" maxlength="500"></textarea>
-  </div>  
-  <button class="ui button" type="submit">Add</button>
-</form>
+  <h2 class="ui header">Add Cluster</h2>
+  <form id="ClusterForm" class="ui form" onSubmit="addCluster(this);return false;">
+    <div class="field">
+      <label>Name</label>
+      <input type="text" name="Name" placeholder="Cluster Name" maxlength="20">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="Description" maxlength="500"></textarea>
+    </div>
+    <button class="ui button" type="submit">Add</button>
+  </form>
+</div>
+<script>
+  function addCluster(form){
+    var id = form.id 
+    if($("#"+id).form("is valid") === true){
+      var clusterInfo = $("#"+id).form('get values') 
+      $("#"+id+"Loading").addClass('active')
+      $.ajax({
+        url: "/cluster/add",
+        data: JSON.stringify(clusterInfo),
+        type: "POST"
+      }).done(function (result) {
+        location.href = "/cluster"
+      }).fail(function (result) {
+        $("#alertError").fadeIn("slow")
+        $("#alertError").text(result.responseJSON.msg)
+      }).always(function () {
+        $("#"+id+"Loading").removeClass('active')
+        setTimeout(function () {
+          $(".ui.message").fadeOut("slow")
+        }, 5000)
+      })
+    }
+  }
+
+</script>

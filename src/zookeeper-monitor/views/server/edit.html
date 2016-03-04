@@ -1,28 +1,61 @@
-<h2 class="ui header">Edit Server</h2>
-<form class="ui form" method="POST">
-  <div class="field">
-    <label>Cluster</label>
-    <select class="ui fluid dropdown" name="cluster_id" disabled>
-      {{range $k, $v := .clusters }}
-      <option value="{{$v.ID}}" {{if eq $.server.ClusterID $v.ID}}selected{{end}}>{{$v.Name}}</option>
-      {{end}}
-    </select>
+<div class="ui">
+  <div id="ServerFormLoading" class="ui dimmer">
+    <div class="ui text loader">Updating</div>
   </div>
-  <div class="field">
-    <label>Name</label>
-    <input type="text" name="server_name" placeholder="Server Name" maxlength="20" value="{{.server.Name}}">
-  </div>
-  <div class="field">
-    <label>IP</label>
-    <input type="text" name="server_ip" placeholder="Server IP" maxlength="15" value="{{.server.IP}}">
-  </div>
-  <div class="field">
-    <label>Port</label>
-    <input type="text" name="server_port" placeholder="Server Port" maxlength="5" value="{{.server.Port}}">
-  </div>
-  <div class="field">
-    <label>Description</label>
-    <textarea name="server_desc" maxlength="500">{{.server.Description}}</textarea>
-  </div>  
-  <button class="ui button" type="submit">Save</button>
-</form>
+  <h2 class="ui header">Edit Server</h2>
+  <form id="ServerForm" class="ui form" onSubmit="editServer(this);return false">
+    <input type="hidden" name="ID" value="{{.server.ID}}">
+    <div class="field">
+      <label>Cluster</label>
+      <select class="ui fluid dropdown" name="ClusterID" disabled>
+        {{range $k, $v := .clusters }}
+        <option value="{{$v.ID}}" {{if eq $.server.ClusterID $v.ID}}selected{{end}}>{{$v.Name}}</option>
+        {{end}}
+      </select>
+    </div>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" name="Name" placeholder="Server Name" maxlength="20" value="{{.server.Name}}">
+    </div>
+    <div class="field">
+      <label>IP</label>
+      <input type="text" name="IP" placeholder="Server IP" maxlength="15" value="{{.server.IP}}">
+    </div>
+    <div class="field">
+      <label>Port</label>
+      <input type="text" name="Port" placeholder="Server Port" maxlength="5" value="{{.server.Port}}">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="Description" maxlength="500">{{.server.Description}}</textarea>
+    </div>
+    <button class="ui button" type="submit">Save</button>
+  </form>
+</div>
+<script>
+  function editServer(form){
+    var id = form.id 
+    if($("#"+id).form("is valid") === true){
+      var serverInfo = $("#"+id).form('get values') 
+      serverInfo.ID = parseInt(serverInfo.ID)
+      serverInfo.ClusterID = parseInt(serverInfo.ClusterID)
+      $("#"+id+"Loading").addClass('active')
+      $.ajax({
+        url: "/server/edit",
+        data: JSON.stringify(serverInfo),
+        type: "POST"
+      }).done(function (result) {
+        location.href = "/cluster/detail/" + result.msg
+      }).fail(function (result) {
+        $("#alertError").fadeIn("slow")
+        $("#alertError").text(result.responseJSON.msg)
+      }).always(function () {
+        $("#"+id+"Loading").removeClass('active')
+        setTimeout(function () {
+          $(".ui.message").fadeOut("slow")
+        }, 5000)
+      })
+    }
+  }
+
+</script>

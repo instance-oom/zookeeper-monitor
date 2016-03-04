@@ -8,10 +8,9 @@ import (
 )
 
 //SendMail : Send email
-func SendMail(body string, serverIP string) {
+func SendMail(body string, to string, serverIP string) {
 	client := &http.Client{}
 	from := beego.AppConfig.String("mail.from")
-	to := beego.AppConfig.String("mail.to")
 	subject := beego.AppConfig.String("mail.subject")
 	msg := `{
 				"From":"` + from + `",

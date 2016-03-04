@@ -18,7 +18,9 @@
         <img class="logo" style="margin-right: 10px" src="/static/img/logo.png"> ZOOKEEPER-MONITOR
       </a>
       <a href="/" {{if eq .curRoute "main.index"}}class="item active" {{else}}class="item" {{end}}>Home</a>
-      <a href="/cluster" {{if eq .curController "cluster" "server"}}class="item active" {{else}}class="item" {{end}}>Cluster</a>
+      <a href="/cluster" {{if eq .curController "cluster"}}class="item active" {{else}}class="item" {{end}}>Cluster</a>
+      <a href="/server" {{if eq .curController "server"}}class="item active" {{else}}class="item" {{end}}>Server</a>
+      <a href="/mail" {{if eq .curController "mail"}}class="item active" {{else}}class="item" {{end}}>Mail</a>
     </div>
   </div>
 
@@ -27,10 +29,11 @@
       <div class="header">Success!</div>
     </div>
     <div id="alertError" class="ui floating negative message" style="display:none">
-
     </div>
-    {{.LayoutContent}}
+    {{.LayoutContent}}    
   </div>
+  <script src="/static/js/jquery.tablesorter.min.js"></script>
+  <script src="/static/js/zookeeper_monitor.js"></script>
 </body>
 
 </html>
