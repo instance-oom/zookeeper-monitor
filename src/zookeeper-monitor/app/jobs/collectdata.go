@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"os"
 	"strconv"
 	"time"
 
@@ -43,11 +44,16 @@ func MailChanged() {
 //Run : Begin to collect zookeeper server status
 func Run() {
 	collectTime := 300
-	if time := beego.AppConfig.String("collect.time"); time != "" {
-		collectTime, _ = strconv.Atoi(time)
+	timefromenv := os.Getenv("zkmonitor_collecttime")
+	if timefromenv != "" {
+		collectTime, _ = strconv.Atoi(timefromenv)
+	} else {
+		if timefromconfig := beego.AppConfig.String("collect.time"); timefromconfig != "" {
+			collectTime, _ = strconv.Atoi(timefromconfig)
+		}
 	}
 	timeToUpdateServerStatus := time.NewTicker(time.Second * time.Duration(collectTime))
-	timeToSaveStatus := time.NewTicker(time.Second * time.Duration(collectTime*5))
+	timeToSaveStatus := time.NewTicker(time.Minute * 5)
 	for {
 		select {
 		case <-timeToUpdateServerStatus.C:
