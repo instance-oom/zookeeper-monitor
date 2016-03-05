@@ -41,8 +41,9 @@ func (s *ServerController) Detail() {
 	s.Data["server"] = server
 	if len(status) > 0 {
 		s.Data["latestStatus"] = status[len(status)-1]
+	} else {
+		s.Data["latestStatus"] = new(models.Status)
 	}
-	s.Data["latestStatus"] = new(models.Status)
 	s.Data["status"] = status
 	s.display()
 }
