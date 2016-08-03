@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `cluster` (
   `EditUser` varchar(50) DEFAULT NULL,
   `EditDate` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 -- 导出  表 zabbix_monitor.mail 结构
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `mail` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `Address` varchar(100) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 -- 导出  表 zabbix_monitor.server 结构
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `server` (
   `EditUser` varchar(50) DEFAULT NULL,
   `EditDate` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 -- 导出  表 zabbix_monitor.status 结构
@@ -79,7 +79,26 @@ CREATE TABLE IF NOT EXISTS `status` (
   `PendingSyncs` int(11) NOT NULL DEFAULT '-1' COMMENT '准备同步数  ',
   `InDate` datetime NOT NULL COMMENT '写入时间',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2553 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+-- 导出  表 zookeeper_monitor.log 结构
+CREATE TABLE IF NOT EXISTS `log` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `Operate` varchar(500) DEFAULT NULL,
+  `InUser` varchar(50) NOT NULL,
+  `InDate` datetime NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+-- 导出  事件 zookeeper_monitor.Delete_Status 结构
+DELIMITER //
+CREATE EVENT `Delete_Status` ON SCHEDULE EVERY 1 DAY STARTS '2016-03-08 16:00:00' ON COMPLETION PRESERVE ENABLE DO BEGIN  
+	START TRANSACTION;
+		DELETE FROM status WHERE InDate < (CURRENT_TIMESTAMP()+INTERVAL -1 DAY);
+		INSERT INTO log(Operate, InUser, InDate) VALUES('Delete status', 'job', now());
+	COMMIT;
+END//
+DELIMITER ;
 
 -- 数据导出被取消选择。
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
